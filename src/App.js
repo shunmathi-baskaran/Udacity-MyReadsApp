@@ -4,6 +4,7 @@ import './App.css'
 import {Route} from 'react-router-dom';
 import BookShelf from './BookShelf';
 import SearchBooks from './SearchBooks';
+import LoadingSpinner from './LoadingSpinner';
 
 
 //main app component
@@ -14,18 +15,22 @@ class BooksApp extends React.Component {
     this.updateShelf = this.updateShelf.bind(this);
     this.state = {
       books: [],
-      bookShelf: [{key:'currentlyReading', name: 'Currently Reading'},
-                  {key:'wantToRead', name: 'Want to Read'},
-                  {key:'read', name: 'Read'}]
+      loading: false
     }
   }
+  bookShelf= [{key:'currentlyReading', name: 'Currently Reading'},
+              {key:'wantToRead', name: 'Want to Read'},
+              {key:'read', name: 'Read'}];
 
   //Get All books call
   componentDidMount = () => {
-    BooksAPI.getAll().then((books) => {
-      this.setState(() => ({
-        books: books
-      }))
+    this.setState({loading:true},()=>{
+      BooksAPI.getAll().then((books) => {
+        this.setState(() => ({
+          books: books,
+          loading: false
+        }))
+      })
     })
   }
 
@@ -43,9 +48,9 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route exact path='/' render={()=> {
-          return <BookShelf 
+          return (this.state.loading) ? <LoadingSpinner /> : <BookShelf 
                     books={this.state.books}
-                    bookShelf={this.state.bookShelf}
+                    bookShelf={this.bookShelf}
                     updateShelf= {this.updateShelf}/>
         }}>
         </Route>
